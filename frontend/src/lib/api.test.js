@@ -10,7 +10,7 @@ function jsonResponse(status, body) {
 }
 
 beforeEach(() => {
-  window.localStorage.clear()
+  localStorage.clear()
   global.fetch = vi.fn()
 })
 

@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from app.api.deps import get_current_user, require_role
 from app.core.config import settings
 from app.db.session import get_db
-from app.models.models import Subscription, SubscriptionPlan, SubscriptionStatus, Tenant, User, UserRole
+from app.models.models import Subscription, SubscriptionPlan, SubscriptionStatus, User, UserRole
 from app.schemas.billing import CheckoutSessionOut, CheckoutSessionRequest, PortalSessionOut, SubscriptionOut
 
 router = APIRouter(tags=["billing"])
