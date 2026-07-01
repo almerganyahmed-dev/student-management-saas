@@ -6,3 +6,6 @@ psycopg[binary]==3.2.10
 pydantic==2.13.4
 pydantic-settings==2.14.2
 python-dotenv==1.2.2
+pyjwt==2.13.0
+bcrypt==5.0.0
+email-validator==2.3.0
