@@ -1,1 +1,36 @@
 @import "tailwindcss";
+
+@theme {
+  --color-chalk: #eeefe4;
+  --color-chalk-dark: #e2e3d4;
+  --color-slate: #26332c;
+  --color-slate-light: #34443a;
+  --color-manila: #cba96b;
+  --color-manila-dark: #a5824a;
+  --color-marker: #b8402f;
+  --color-marker-dark: #96311f;
+  --color-fountain: #2f4c68;
+  --color-pencil: #6b675c;
+  --color-pencil-light: #8b8577;
+
+  --font-display: "Zilla Slab", ui-serif, Georgia, serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-slate);
+  background-image: radial-gradient(var(--color-slate-light) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+::selection {
+  background-color: var(--color-marker);
+  color: var(--color-chalk);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-fountain);
+  outline-offset: 2px;
+}

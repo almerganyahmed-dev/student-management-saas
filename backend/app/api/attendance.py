@@ -1,3 +1,4 @@
+import datetime as dt
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -43,6 +44,7 @@ def create_attendance(
 def list_attendance(
     student_id: uuid.UUID | None = None,
     class_id: uuid.UUID | None = None,
+    date: dt.date | None = None,
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
@@ -58,6 +60,9 @@ def list_attendance(
 
     if class_id is not None:
         query = query.filter(Attendance.class_id == class_id)
+
+    if date is not None:
+        query = query.filter(Attendance.date == date)
 
     return query.order_by(Attendance.date.desc()).all()
 
