@@ -14,10 +14,11 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 30
     refresh_token_expire_days: int = 7
 
-    # Placeholder wired up in Phase 5 (Stripe) — kept here now so .env.example
-    # documents the full expected shape from day one.
     stripe_secret_key: str = ""
     stripe_webhook_secret: str = ""
+    stripe_price_basic: str = ""
+    stripe_price_premium: str = ""
+    frontend_url: str = "http://localhost:5173"
 
 
 settings = Settings()

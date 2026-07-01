@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { useSearchParams } from "react-router-dom"
 import IndexCard, { Stamp } from "../components/IndexCard"
 import { useAuth } from "../lib/AuthContext"
 import { api, ApiError } from "../lib/api"
@@ -7,12 +8,55 @@ const inputClass =
   "mt-1 w-full border-b-2 border-pencil-light/50 bg-transparent py-1 text-sm text-slate outline-none focus-visible:border-fountain"
 const labelClass = "font-mono text-xs tracking-wider text-pencil uppercase"
 const ROLE_LABEL = { admin: "Administrator", teacher: "Teacher", student: "Student" }
+const PLAN_LABEL = { free: "Free", basic: "Basic", premium: "Premium" }
+const STATUS_TONE = { active: "fountain", past_due: "marker", canceled: "marker", incomplete: "pencil" }
 
 export default function Admin() {
   const { tenant } = useAuth()
+  const [searchParams] = useSearchParams()
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+
+  const [subscription, setSubscription] = useState(null)
+  const [billingError, setBillingError] = useState(null)
+  const [billingBusy, setBillingBusy] = useState(null)
+
+  async function loadSubscription() {
+    try {
+      setSubscription(await api.get("/billing/subscription"))
+    } catch (err) {
+      setBillingError(err instanceof ApiError ? err.detail : "Could not load billing status.")
+    }
+  }
+
+  useEffect(() => {
+    loadSubscription()
+  }, [])
+
+  async function handleUpgrade(plan) {
+    setBillingError(null)
+    setBillingBusy(plan)
+    try {
+      const { url } = await api.post("/billing/checkout-session", { plan })
+      window.location.href = url
+    } catch (err) {
+      setBillingError(err instanceof ApiError ? err.detail : "Could not start checkout.")
+      setBillingBusy(null)
+    }
+  }
+
+  async function handleManageBilling() {
+    setBillingError(null)
+    setBillingBusy("portal")
+    try {
+      const { url } = await api.post("/billing/portal-session")
+      window.location.href = url
+    } catch (err) {
+      setBillingError(err instanceof ApiError ? err.detail : "Could not open billing portal.")
+      setBillingBusy(null)
+    }
+  }
 
   const [fullName, setFullName] = useState("")
   const [email, setEmail] = useState("")
@@ -82,6 +126,60 @@ export default function Admin() {
             <dd className="font-mono text-slate">{tenant?.slug ?? "—"}</dd>
           </div>
         </dl>
+      </IndexCard>
+
+      {searchParams.get("checkout") === "success" && (
+        <p className="mt-4 text-sm font-semibold text-fountain">Checkout complete — your plan will update shortly.</p>
+      )}
+      {searchParams.get("checkout") === "cancel" && (
+        <p className="mt-4 text-sm font-semibold text-pencil">Checkout canceled.</p>
+      )}
+
+      <h2 className="mt-8 font-display text-lg font-semibold text-slate">Billing</h2>
+      <IndexCard className="mt-4 max-w-md p-6">
+        {subscription ? (
+          <>
+            <div className="flex items-start justify-between">
+              <p className="font-display text-lg font-semibold text-slate">{PLAN_LABEL[subscription.plan]} plan</p>
+              <Stamp tone={STATUS_TONE[subscription.status] ?? "pencil"}>{subscription.status}</Stamp>
+            </div>
+            <div className="mt-4 flex flex-wrap gap-3">
+              {subscription.plan !== "basic" && (
+                <button
+                  type="button"
+                  onClick={() => handleUpgrade("basic")}
+                  disabled={billingBusy !== null}
+                  className="bg-manila-dark px-4 py-2 text-xs font-semibold tracking-wide text-chalk uppercase transition hover:brightness-110 disabled:opacity-60"
+                >
+                  {billingBusy === "basic" ? "Redirecting…" : "Choose Basic"}
+                </button>
+              )}
+              {subscription.plan !== "premium" && (
+                <button
+                  type="button"
+                  onClick={() => handleUpgrade("premium")}
+                  disabled={billingBusy !== null}
+                  className="bg-fountain px-4 py-2 text-xs font-semibold tracking-wide text-chalk uppercase transition hover:brightness-110 disabled:opacity-60"
+                >
+                  {billingBusy === "premium" ? "Redirecting…" : "Choose Premium"}
+                </button>
+              )}
+              {subscription.plan !== "free" && (
+                <button
+                  type="button"
+                  onClick={handleManageBilling}
+                  disabled={billingBusy !== null}
+                  className="px-4 py-2 text-xs font-semibold tracking-wide text-pencil uppercase underline decoration-pencil-light disabled:opacity-60"
+                >
+                  {billingBusy === "portal" ? "Redirecting…" : "Manage billing"}
+                </button>
+              )}
+            </div>
+          </>
+        ) : (
+          <p className="text-sm text-pencil">Loading…</p>
+        )}
+        {billingError && <p className="mt-3 text-xs font-semibold text-marker">{billingError}</p>}
       </IndexCard>
 
       <h2 className="mt-8 font-display text-lg font-semibold text-slate">Staff &amp; students</h2>

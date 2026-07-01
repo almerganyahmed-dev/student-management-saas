@@ -50,6 +50,17 @@ cp .env.example .env
 npm run dev
 ```
 
+## Billing (Stripe)
+
+Billing endpoints work without any Stripe setup — they return `503 Billing is not configured` instead of crashing. To exercise real checkout:
+
+1. Create a [Stripe](https://dashboard.stripe.com/register) account and grab your **test-mode** secret key.
+2. Create two recurring Prices (Basic, Premium) in test mode and copy their Price IDs.
+3. In `backend/.env`, set `STRIPE_SECRET_KEY`, `STRIPE_PRICE_BASIC`, `STRIPE_PRICE_PREMIUM`.
+4. For webhooks locally, run `stripe listen --forward-to localhost:8000/webhooks/stripe` (Stripe CLI) and put the printed signing secret in `STRIPE_WEBHOOK_SECRET`.
+
+Every tenant starts on the free plan automatically at signup — no Stripe interaction needed until they upgrade.
+
 ## Current status
 
-Phase 1 (scaffold) complete: backend skeleton with health check and the initial DB schema (tenants, users, classes, students, attendance, subscriptions), frontend routing skeleton, Docker Compose wiring. No auth, CRUD, or billing logic yet — see the phase plan for what's next.
+Phases 1–5 complete: scaffold, JWT auth + RBAC, tenant-scoped CRUD (classes/students/attendance/grades), the full frontend wired to the backend (register/login/RBAC-gated UI), and Stripe subscription billing (checkout, customer portal, webhook-driven plan sync). See the phase plan for what's next (tests, CI/CD, deployment prep).

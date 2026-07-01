@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.attendance import router as attendance_router
 from app.api.auth import router as auth_router
+from app.api.billing import router as billing_router
 from app.api.classes import router as classes_router
 from app.api.grades import router as grades_router
 from app.api.health import router as health_router
@@ -28,3 +29,4 @@ app.include_router(attendance_router)
 app.include_router(grades_router)
 app.include_router(tenants_router)
 app.include_router(users_router)
+app.include_router(billing_router)

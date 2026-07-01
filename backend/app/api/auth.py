@@ -15,7 +15,7 @@ from app.core.security import (
     verify_password,
 )
 from app.db.session import get_db
-from app.models.models import Tenant, User, UserRole
+from app.models.models import Subscription, Tenant, User, UserRole
 from app.schemas.auth import LoginRequest, RefreshRequest, RegisterRequest, TokenResponse, UserOut
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -47,6 +47,9 @@ def register(body: RegisterRequest, db: Session = Depends(get_db)):
         full_name=body.admin_full_name,
     )
     db.add(admin)
+    # Every tenant starts on the free plan — no Stripe interaction needed
+    # until they choose to upgrade (see app/api/billing.py).
+    db.add(Subscription(tenant_id=tenant.id))
     db.commit()
     db.refresh(admin)
 
