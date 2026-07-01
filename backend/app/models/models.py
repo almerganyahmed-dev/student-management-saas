@@ -103,6 +103,20 @@ class Attendance(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
+class Grade(Base):
+    __tablename__ = "grades"
+
+    id: Mapped[uuid.UUID] = uuid_pk()
+    tenant_id: Mapped[uuid.UUID] = tenant_fk()
+    student_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("students.id"), nullable=False, index=True)
+    class_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("classes.id"), nullable=False, index=True)
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    score: Mapped[float] = mapped_column(nullable=False)
+    max_score: Mapped[float] = mapped_column(nullable=False, default=100)
+    graded_at: Mapped[date] = mapped_column(Date, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
 class Subscription(Base):
     __tablename__ = "subscriptions"
 

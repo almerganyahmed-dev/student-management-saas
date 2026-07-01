@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.core.security import TokenType, decode_token
 from app.db.session import get_db
-from app.models.models import User, UserRole
+from app.models.models import Student, User, UserRole
 
 bearer_scheme = HTTPBearer()
 
@@ -50,3 +50,9 @@ def require_role(*allowed_roles: UserRole):
         return user
 
     return dependency
+
+
+def get_own_student(db: Session, user: User) -> Student | None:
+    """The Student row linked to a logged-in student user, or None if unlinked.
+    Used to scope attendance/grades so a student only ever sees their own records."""
+    return db.query(Student).filter(Student.tenant_id == user.tenant_id, Student.user_id == user.id).first()
