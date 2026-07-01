@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.api.crud_utils import get_tenant_scoped_or_404
+from app.api.crud_utils import delete_or_conflict, get_tenant_scoped_or_404
 from app.api.deps import require_role
 from app.core.security import hash_password
 from app.db.session import get_db
@@ -54,5 +54,4 @@ def delete_user(
     if user_id == admin.id:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot delete your own account")
     user = get_tenant_scoped_or_404(db, User, user_id, admin.tenant_id)
-    db.delete(user)
-    db.commit()
+    delete_or_conflict(db, user)

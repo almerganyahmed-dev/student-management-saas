@@ -1,6 +1,7 @@
 import uuid
 
 from fastapi import HTTPException, status
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 
@@ -12,3 +13,18 @@ def get_tenant_scoped_or_404(db: Session, model, obj_id: uuid.UUID, tenant_id: u
     if obj is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"{model.__name__} not found")
     return obj
+
+
+def delete_or_conflict(db: Session, obj):
+    """Every delete in a CRUD router should go through here — deleting a row that's
+    still referenced elsewhere (e.g. a student with attendance/grade history) would
+    otherwise bubble up as a bare 500 from the FK constraint."""
+    db.delete(obj)
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Cannot delete this {type(obj).__name__.lower()} — other records still reference it",
+        )

@@ -3,7 +3,7 @@ import uuid
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
-from app.api.crud_utils import get_tenant_scoped_or_404
+from app.api.crud_utils import delete_or_conflict, get_tenant_scoped_or_404
 from app.api.deps import get_current_user, require_role
 from app.db.session import get_db
 from app.models.models import Student, User, UserRole
@@ -70,5 +70,4 @@ def delete_student(
     user: User = Depends(require_role(UserRole.admin)),
 ):
     student = get_tenant_scoped_or_404(db, Student, student_id, user.tenant_id)
-    db.delete(student)
-    db.commit()
+    delete_or_conflict(db, student)
