@@ -9,9 +9,9 @@ Multi-tenant platform for schools to manage students, classes, attendance, and g
 ## Project layout
 
 ```
-backend/    FastAPI app, SQLAlchemy models, Alembic migrations
-frontend/   React app (Vite), routing skeleton
-docs/       Design notes
+backend/    FastAPI app, SQLAlchemy models, Alembic migrations, pytest suite
+frontend/   React app (Vite), pages wired to the backend, Vitest/RTL suite
+docs/       Design notes and deployment guide
 ```
 
 ## Run locally with Docker (recommended)
@@ -61,6 +61,22 @@ Billing endpoints work without any Stripe setup — they return `503 Billing is 
 
 Every tenant starts on the free plan automatically at signup — no Stripe interaction needed until they upgrade.
 
+## Tests
+
+```bash
+# Backend (needs a reachable Postgres — creates its own student_saas_test database)
+cd backend && pip install -r requirements-dev.txt && pytest
+
+# Frontend
+cd frontend && npm test
+```
+
+CI (`.github/workflows/ci.yml`) runs both suites plus lint and a production build on every push/PR to `main`.
+
+## Deployment
+
+`backend/Dockerfile` and `frontend/Dockerfile.prod` are production images (non-root backend user, static nginx-served frontend build). See [docs/deployment.md](docs/deployment.md) for the full guide — AWS ECS Fargate (recommended) and single-EC2 (cheaper, less resilient) options, secrets management, migration strategy, and staging/prod separation. `backend/.env.staging.example` and `backend/.env.production.example` show the expected env shape per environment.
+
 ## Current status
 
-Phases 1–5 complete: scaffold, JWT auth + RBAC, tenant-scoped CRUD (classes/students/attendance/grades), the full frontend wired to the backend (register/login/RBAC-gated UI), and Stripe subscription billing (checkout, customer portal, webhook-driven plan sync). See the phase plan for what's next (tests, CI/CD, deployment prep).
+All 8 phases complete: scaffold, JWT auth + RBAC, tenant-scoped CRUD, frontend integration, Stripe billing, backend/frontend test suites, GitHub Actions CI, and deployment prep.
