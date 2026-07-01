@@ -15,6 +15,7 @@ router = APIRouter(tags=["billing"])
 PRICE_BY_PLAN = {
     "basic": lambda: settings.stripe_price_basic,
     "premium": lambda: settings.stripe_price_premium,
+    "enterprise": lambda: settings.stripe_price_enterprise,
 }
 
 # Stripe's subscription statuses are broader than ours (trialing, incomplete_expired,

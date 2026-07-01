@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     stripe_webhook_secret: str = ""
     stripe_price_basic: str = ""
     stripe_price_premium: str = ""
+    stripe_price_enterprise: str = ""
     frontend_url: str = "http://localhost:5173"
 
 

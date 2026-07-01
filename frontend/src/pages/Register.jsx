@@ -1,12 +1,12 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
-import IndexCard, { Stamp } from "../components/IndexCard"
+import Card from "../components/Card"
 import { useAuth } from "../lib/AuthContext"
 import { ApiError } from "../lib/api"
 
 const inputClass =
-  "mt-1 w-full border-b-2 border-pencil-light/50 bg-transparent py-1 text-sm text-slate outline-none focus-visible:border-fountain"
-const labelClass = "font-mono text-xs tracking-wider text-pencil uppercase"
+  "mt-1.5 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-ink outline-none transition focus:border-brand focus:ring-2 focus:ring-brand-soft"
+const labelClass = "text-sm font-medium text-ink"
 
 function slugify(value) {
   return value
@@ -48,94 +48,105 @@ export default function Register() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4 py-12">
-      <IndexCard className="w-full max-w-sm p-8">
-        <Stamp tone="fountain">New school</Stamp>
-        <form className="mt-5 space-y-5" onSubmit={handleSubmit}>
-          <h1 className="font-display text-2xl font-semibold text-slate">Create your school</h1>
+    <div className="flex min-h-screen items-center justify-center bg-canvas px-4 py-12">
+      <div className="w-full max-w-sm">
+        <div className="mb-8 flex items-center justify-center gap-2.5">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand font-display text-base font-bold text-white">
+            S
+          </div>
+          <span className="font-display text-lg font-semibold text-ink">Student SaaS</span>
+        </div>
 
-          <label className="block">
-            <span className={labelClass}>School name</span>
-            <input
-              type="text"
-              value={tenantName}
-              onChange={(e) => handleTenantNameChange(e.target.value)}
-              className={inputClass}
-              required
-            />
-          </label>
+        <Card className="p-8">
+          <form className="space-y-5" onSubmit={handleSubmit}>
+            <div>
+              <h1 className="font-display text-xl font-semibold text-ink">Create your school</h1>
+              <p className="mt-1 text-sm text-subtle">Set up your school's workspace in a minute.</p>
+            </div>
 
-          <label className="block">
-            <span className={labelClass}>School code</span>
-            <input
-              type="text"
-              value={tenantSlug}
-              onChange={(e) => {
-                setSlugTouched(true)
-                setTenantSlug(e.target.value)
-              }}
-              className={inputClass}
-              pattern="[a-z0-9]+(-[a-z0-9]+)*"
-              title="Lowercase letters, numbers, and hyphens only"
-              required
-            />
-          </label>
+            <label className="block">
+              <span className={labelClass}>School name</span>
+              <input
+                type="text"
+                value={tenantName}
+                onChange={(e) => handleTenantNameChange(e.target.value)}
+                className={inputClass}
+                required
+              />
+            </label>
 
-          <label className="block">
-            <span className={labelClass}>Your name</span>
-            <input
-              type="text"
-              autoComplete="name"
-              value={adminFullName}
-              onChange={(e) => setAdminFullName(e.target.value)}
-              className={inputClass}
-              required
-            />
-          </label>
+            <label className="block">
+              <span className={labelClass}>School code</span>
+              <input
+                type="text"
+                value={tenantSlug}
+                onChange={(e) => {
+                  setSlugTouched(true)
+                  setTenantSlug(e.target.value)
+                }}
+                className={inputClass}
+                pattern="[a-z0-9]+(-[a-z0-9]+)*"
+                title="Lowercase letters, numbers, and hyphens only"
+                required
+              />
+            </label>
 
-          <label className="block">
-            <span className={labelClass}>Email</span>
-            <input
-              type="email"
-              autoComplete="email"
-              value={adminEmail}
-              onChange={(e) => setAdminEmail(e.target.value)}
-              className={inputClass}
-              required
-            />
-          </label>
+            <label className="block">
+              <span className={labelClass}>Your name</span>
+              <input
+                type="text"
+                autoComplete="name"
+                value={adminFullName}
+                onChange={(e) => setAdminFullName(e.target.value)}
+                className={inputClass}
+                required
+              />
+            </label>
 
-          <label className="block">
-            <span className={labelClass}>Password</span>
-            <input
-              type="password"
-              autoComplete="new-password"
-              minLength={8}
-              value={adminPassword}
-              onChange={(e) => setAdminPassword(e.target.value)}
-              className={inputClass}
-              required
-            />
-          </label>
+            <label className="block">
+              <span className={labelClass}>Email</span>
+              <input
+                type="email"
+                autoComplete="email"
+                value={adminEmail}
+                onChange={(e) => setAdminEmail(e.target.value)}
+                className={inputClass}
+                required
+              />
+            </label>
 
-          {error && <p className="text-xs font-semibold text-marker">{error}</p>}
+            <label className="block">
+              <span className={labelClass}>Password</span>
+              <input
+                type="password"
+                autoComplete="new-password"
+                minLength={8}
+                value={adminPassword}
+                onChange={(e) => setAdminPassword(e.target.value)}
+                className={inputClass}
+                required
+              />
+            </label>
 
-          <button
-            type="submit"
-            disabled={submitting}
-            className="w-full bg-fountain py-2 text-sm font-semibold tracking-wide text-chalk uppercase shadow-[3px_3px_0_0_rgba(38,51,44,0.25)] transition hover:brightness-110 disabled:opacity-60"
-          >
-            {submitting ? "Creating…" : "Create account"}
-          </button>
+            {error && <p className="rounded-lg bg-danger-soft px-3 py-2 text-sm font-medium text-danger">{error}</p>}
 
-          <p className="text-xs text-pencil">
-            Already have a school?{" "}
-            <Link to="/login" className="font-semibold text-fountain">
-              Sign in
-            </Link>
-          </p>
-        </form>
-      </IndexCard>
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full rounded-lg bg-brand py-2.5 text-sm font-semibold text-white transition hover:bg-brand-dark disabled:opacity-60"
+            >
+              {submitting ? "Creating…" : "Create account"}
+            </button>
+
+            <p className="text-center text-sm text-subtle">
+              Already have a school?{" "}
+              <Link to="/login" className="font-semibold text-brand hover:text-brand-dark">
+                Sign in
+              </Link>
+            </p>
+          </form>
+        </Card>
+      </div>
     </div>
   )
 }

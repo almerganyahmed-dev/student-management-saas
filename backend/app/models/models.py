@@ -37,6 +37,7 @@ class SubscriptionPlan(str, enum.Enum):
     free = "free"
     basic = "basic"
     premium = "premium"
+    enterprise = "enterprise"
 
 
 class SubscriptionStatus(str, enum.Enum):

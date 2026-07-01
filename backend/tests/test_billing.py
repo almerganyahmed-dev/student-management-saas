@@ -13,6 +13,21 @@ def test_checkout_session_503_when_stripe_unconfigured(client, register_school):
     assert resp.status_code == 503
 
 
+def test_checkout_session_accepts_enterprise_plan(client, register_school):
+    tokens = register_school(tenant_slug="billing-enterprise-school")
+    headers = {"Authorization": f"Bearer {tokens['access_token']}"}
+    resp = client.post("/billing/checkout-session", json={"plan": "enterprise"}, headers=headers)
+    # 503 (stripe unconfigured), not 422 — "enterprise" is a valid plan value.
+    assert resp.status_code == 503
+
+
+def test_checkout_session_rejects_unknown_plan(client, register_school):
+    tokens = register_school(tenant_slug="billing-badplan-school")
+    headers = {"Authorization": f"Bearer {tokens['access_token']}"}
+    resp = client.post("/billing/checkout-session", json={"plan": "ultra"}, headers=headers)
+    assert resp.status_code == 422
+
+
 def _sign(payload: bytes, secret: str) -> str:
     ts = str(int(time.time()))
     sig = stripe.WebhookSignature._compute_signature(f"{ts}.{payload.decode()}", secret)

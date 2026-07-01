@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
-import IndexCard, { Stamp } from "../components/IndexCard"
+import Card from "../components/Card"
+import { IconUsers, IconGrid, IconCheck } from "../components/icons"
 import { api, ApiError } from "../lib/api"
 
 function todayIso() {
@@ -32,25 +33,27 @@ export default function Dashboard() {
   }, [])
 
   const cards = [
-    { label: "Students enrolled", value: stats?.students ?? "…" },
-    { label: "Classes in session", value: stats?.classes ?? "…" },
-    { label: "Attendance today", value: stats?.attendanceRate ?? "…" },
+    { label: "Students enrolled", value: stats?.students ?? "…", icon: IconUsers },
+    { label: "Classes in session", value: stats?.classes ?? "…", icon: IconGrid },
+    { label: "Attendance today", value: stats?.attendanceRate ?? "…", icon: IconCheck },
   ]
 
   return (
     <div>
-      <Stamp tone="pencil">Today</Stamp>
-      <h1 className="mt-3 font-display text-2xl font-semibold text-slate">Dashboard</h1>
-      <p className="mt-1 text-sm text-pencil">Live counts from your school's records.</p>
+      <h1 className="font-display text-2xl font-semibold text-ink">Dashboard</h1>
+      <p className="mt-1 text-sm text-subtle">Live counts from your school's records.</p>
 
-      {error && <p className="mt-4 text-sm font-semibold text-marker">{error}</p>}
+      {error && <p className="mt-4 rounded-lg bg-danger-soft px-3 py-2 text-sm font-medium text-danger">{error}</p>}
 
-      <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3">
-        {cards.map((s) => (
-          <IndexCard key={s.label} className="p-4">
-            <p className="font-mono text-2xl font-semibold text-slate">{s.value}</p>
-            <p className="mt-1 text-xs text-pencil">{s.label}</p>
-          </IndexCard>
+      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        {cards.map(({ label, value, icon: Icon }) => (
+          <Card key={label} className="p-5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-soft text-brand-dark">
+              <Icon />
+            </div>
+            <p className="mt-4 font-mono text-2xl font-semibold text-ink">{value}</p>
+            <p className="mt-1 text-sm text-subtle">{label}</p>
+          </Card>
         ))}
       </div>
     </div>

@@ -1,4 +1,4 @@
-import IndexCard, { Stamp } from "../components/IndexCard"
+import Card, { Badge } from "../components/Card"
 import { useAuth } from "../lib/AuthContext"
 
 function initials(fullName) {
@@ -18,31 +18,32 @@ export default function Profile() {
 
   return (
     <div>
-      <Stamp tone="pencil">Staff ID</Stamp>
-      <h1 className="mt-3 font-display text-2xl font-semibold text-slate">Profile</h1>
-      <p className="mt-1 text-sm text-pencil">Your account details.</p>
+      <h1 className="font-display text-2xl font-semibold text-ink">Profile</h1>
+      <p className="mt-1 text-sm text-subtle">Your account details.</p>
 
-      <IndexCard className="mt-6 max-w-sm p-6">
+      <Card className="mt-6 max-w-sm p-6">
         <div className="flex items-center gap-4">
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center bg-slate font-display text-lg font-semibold text-chalk">
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-brand font-display text-lg font-semibold text-white">
             {initials(user.full_name)}
           </div>
           <div>
-            <p className="font-display text-lg font-semibold text-slate">{user.full_name}</p>
-            <p className="text-xs text-pencil">{ROLE_LABEL[user.role] ?? user.role}</p>
+            <p className="font-display text-lg font-semibold text-ink">{user.full_name}</p>
+            <div className="mt-1">
+              <Badge tone="brand">{ROLE_LABEL[user.role] ?? user.role}</Badge>
+            </div>
           </div>
         </div>
-        <dl className="mt-5 space-y-2 border-t border-pencil-light/30 pt-4 text-sm">
+        <dl className="mt-5 space-y-3 border-t border-border pt-4 text-sm">
           <div className="flex justify-between">
-            <dt className="text-pencil">Email</dt>
-            <dd className="text-slate">{user.email}</dd>
+            <dt className="text-subtle">Email</dt>
+            <dd className="text-ink">{user.email}</dd>
           </div>
           <div className="flex justify-between">
-            <dt className="text-pencil">School</dt>
-            <dd className="font-mono text-slate">{tenant?.name ?? "—"}</dd>
+            <dt className="text-subtle">School</dt>
+            <dd className="font-mono text-ink">{tenant?.name ?? "—"}</dd>
           </div>
         </dl>
-      </IndexCard>
+      </Card>
     </div>
   )
 }

@@ -1,15 +1,16 @@
 import { useEffect, useState } from "react"
 import { useSearchParams } from "react-router-dom"
-import IndexCard, { Stamp } from "../components/IndexCard"
+import Card, { Badge } from "../components/Card"
 import { useAuth } from "../lib/AuthContext"
 import { api, ApiError } from "../lib/api"
 
 const inputClass =
-  "mt-1 w-full border-b-2 border-pencil-light/50 bg-transparent py-1 text-sm text-slate outline-none focus-visible:border-fountain"
-const labelClass = "font-mono text-xs tracking-wider text-pencil uppercase"
+  "mt-1.5 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-ink outline-none transition focus:border-brand focus:ring-2 focus:ring-brand-soft"
+const labelClass = "text-sm font-medium text-ink"
 const ROLE_LABEL = { admin: "Administrator", teacher: "Teacher", student: "Student" }
-const PLAN_LABEL = { free: "Free", basic: "Basic", premium: "Premium" }
-const STATUS_TONE = { active: "fountain", past_due: "marker", canceled: "marker", incomplete: "pencil" }
+const PLAN_LABEL = { free: "Free", basic: "Basic", premium: "Premium", enterprise: "Enterprise" }
+const STATUS_TONE = { active: "brand", past_due: "warning", canceled: "danger", incomplete: "neutral" }
+const UPGRADE_PLANS = ["basic", "premium", "enterprise"]
 
 export default function Admin() {
   const { tenant } = useAuth()
@@ -107,69 +108,61 @@ export default function Admin() {
 
   return (
     <div>
-      <Stamp tone="pencil">Master file</Stamp>
-      <h1 className="mt-3 font-display text-2xl font-semibold text-slate">Admin</h1>
-      <p className="mt-1 text-sm text-pencil">Tenant record and staff/student accounts.</p>
+      <h1 className="font-display text-2xl font-semibold text-ink">Admin</h1>
+      <p className="mt-1 text-sm text-subtle">Tenant record, billing, and staff/student accounts.</p>
 
-      <IndexCard className="mt-6 max-w-md p-6">
+      <Card className="mt-6 max-w-md p-6">
         <div className="flex items-start justify-between">
-          <h2 className="font-display text-lg font-semibold text-slate">Tenant record</h2>
-          <Stamp tone="fountain">Active</Stamp>
+          <h2 className="font-display text-base font-semibold text-ink">Tenant record</h2>
+          <Badge tone="brand">Active</Badge>
         </div>
-        <dl className="mt-4 divide-y divide-pencil-light/30">
-          <div className="flex justify-between py-2 text-sm">
-            <dt className="text-pencil">Name</dt>
-            <dd className="font-mono text-slate">{tenant?.name ?? "—"}</dd>
+        <dl className="mt-4 divide-y divide-border">
+          <div className="flex justify-between py-2.5 text-sm">
+            <dt className="text-subtle">Name</dt>
+            <dd className="font-mono text-ink">{tenant?.name ?? "—"}</dd>
           </div>
-          <div className="flex justify-between py-2 text-sm">
-            <dt className="text-pencil">School code</dt>
-            <dd className="font-mono text-slate">{tenant?.slug ?? "—"}</dd>
+          <div className="flex justify-between py-2.5 text-sm">
+            <dt className="text-subtle">School code</dt>
+            <dd className="font-mono text-ink">{tenant?.slug ?? "—"}</dd>
           </div>
         </dl>
-      </IndexCard>
+      </Card>
 
       {searchParams.get("checkout") === "success" && (
-        <p className="mt-4 text-sm font-semibold text-fountain">Checkout complete — your plan will update shortly.</p>
+        <p className="mt-4 rounded-lg bg-brand-soft px-3 py-2 text-sm font-medium text-brand-dark">
+          Checkout complete — your plan will update shortly.
+        </p>
       )}
       {searchParams.get("checkout") === "cancel" && (
-        <p className="mt-4 text-sm font-semibold text-pencil">Checkout canceled.</p>
+        <p className="mt-4 rounded-lg bg-canvas px-3 py-2 text-sm font-medium text-subtle">Checkout canceled.</p>
       )}
 
-      <h2 className="mt-8 font-display text-lg font-semibold text-slate">Billing</h2>
-      <IndexCard className="mt-4 max-w-md p-6">
+      <h2 className="mt-8 font-display text-lg font-semibold text-ink">Billing</h2>
+      <Card className="mt-4 max-w-md p-6">
         {subscription ? (
           <>
             <div className="flex items-start justify-between">
-              <p className="font-display text-lg font-semibold text-slate">{PLAN_LABEL[subscription.plan]} plan</p>
-              <Stamp tone={STATUS_TONE[subscription.status] ?? "pencil"}>{subscription.status}</Stamp>
+              <p className="font-display text-lg font-semibold text-ink">{PLAN_LABEL[subscription.plan]} plan</p>
+              <Badge tone={STATUS_TONE[subscription.status] ?? "neutral"}>{subscription.status}</Badge>
             </div>
-            <div className="mt-4 flex flex-wrap gap-3">
-              {subscription.plan !== "basic" && (
+            <div className="mt-4 flex flex-wrap gap-2.5">
+              {UPGRADE_PLANS.filter((plan) => plan !== subscription.plan).map((plan) => (
                 <button
+                  key={plan}
                   type="button"
-                  onClick={() => handleUpgrade("basic")}
+                  onClick={() => handleUpgrade(plan)}
                   disabled={billingBusy !== null}
-                  className="bg-manila-dark px-4 py-2 text-xs font-semibold tracking-wide text-chalk uppercase transition hover:brightness-110 disabled:opacity-60"
+                  className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-ink transition hover:border-brand hover:text-brand disabled:opacity-60"
                 >
-                  {billingBusy === "basic" ? "Redirecting…" : "Choose Basic"}
+                  {billingBusy === plan ? "Redirecting…" : `Choose ${PLAN_LABEL[plan]}`}
                 </button>
-              )}
-              {subscription.plan !== "premium" && (
-                <button
-                  type="button"
-                  onClick={() => handleUpgrade("premium")}
-                  disabled={billingBusy !== null}
-                  className="bg-fountain px-4 py-2 text-xs font-semibold tracking-wide text-chalk uppercase transition hover:brightness-110 disabled:opacity-60"
-                >
-                  {billingBusy === "premium" ? "Redirecting…" : "Choose Premium"}
-                </button>
-              )}
+              ))}
               {subscription.plan !== "free" && (
                 <button
                   type="button"
                   onClick={handleManageBilling}
                   disabled={billingBusy !== null}
-                  className="px-4 py-2 text-xs font-semibold tracking-wide text-pencil uppercase underline decoration-pencil-light disabled:opacity-60"
+                  className="rounded-lg px-4 py-2 text-sm font-medium text-subtle underline decoration-border transition hover:text-ink disabled:opacity-60"
                 >
                   {billingBusy === "portal" ? "Redirecting…" : "Manage billing"}
                 </button>
@@ -177,86 +170,99 @@ export default function Admin() {
             </div>
           </>
         ) : (
-          <p className="text-sm text-pencil">Loading…</p>
+          <p className="text-sm text-subtle">Loading…</p>
         )}
-        {billingError && <p className="mt-3 text-xs font-semibold text-marker">{billingError}</p>}
-      </IndexCard>
+        {billingError && (
+          <p className="mt-3 rounded-lg bg-danger-soft px-3 py-2 text-sm font-medium text-danger">{billingError}</p>
+        )}
+      </Card>
 
-      <h2 className="mt-8 font-display text-lg font-semibold text-slate">Staff &amp; students</h2>
+      <h2 className="mt-8 font-display text-lg font-semibold text-ink">Staff &amp; students</h2>
 
-      <form onSubmit={handleInvite} className="mt-4 flex flex-wrap items-end gap-4 border-b border-pencil-light/30 pb-6">
-        <label className="block">
-          <span className={labelClass}>Full name</span>
-          <input value={fullName} onChange={(e) => setFullName(e.target.value)} className={inputClass} required />
-        </label>
-        <label className="block">
-          <span className={labelClass}>Email</span>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className={inputClass}
-            required
-          />
-        </label>
-        <label className="block">
-          <span className={labelClass}>Temporary password</span>
-          <input
-            type="password"
-            minLength={8}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className={inputClass}
-            required
-          />
-        </label>
-        <label className="block">
-          <span className={labelClass}>Role</span>
-          <select value={role} onChange={(e) => setRole(e.target.value)} className={inputClass}>
-            <option value="teacher">Teacher</option>
-            <option value="student">Student</option>
-            <option value="admin">Admin</option>
-          </select>
-        </label>
-        <button
-          type="submit"
-          disabled={submitting}
-          className="bg-marker px-4 py-2 text-sm font-semibold tracking-wide text-chalk uppercase shadow-[3px_3px_0_0_rgba(38,51,44,0.25)] transition hover:bg-marker-dark disabled:opacity-60"
-        >
-          {submitting ? "Adding…" : "Add account"}
-        </button>
-        {formError && <p className="w-full text-xs font-semibold text-marker">{formError}</p>}
-      </form>
+      <Card className="mt-4 p-5">
+        <form onSubmit={handleInvite} className="flex flex-wrap items-end gap-4">
+          <label className="block">
+            <span className={labelClass}>Full name</span>
+            <input value={fullName} onChange={(e) => setFullName(e.target.value)} className={inputClass} required />
+          </label>
+          <label className="block">
+            <span className={labelClass}>Email</span>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className={inputClass}
+              required
+            />
+          </label>
+          <label className="block">
+            <span className={labelClass}>Temporary password</span>
+            <input
+              type="password"
+              minLength={8}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className={inputClass}
+              required
+            />
+          </label>
+          <label className="block">
+            <span className={labelClass}>Role</span>
+            <select value={role} onChange={(e) => setRole(e.target.value)} className={inputClass}>
+              <option value="teacher">Teacher</option>
+              <option value="student">Student</option>
+              <option value="admin">Admin</option>
+            </select>
+          </label>
+          <button
+            type="submit"
+            disabled={submitting}
+            className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-dark disabled:opacity-60"
+          >
+            {submitting ? "Adding…" : "Add account"}
+          </button>
+          {formError && <p className="w-full text-sm font-medium text-danger">{formError}</p>}
+        </form>
+      </Card>
 
-      {error && <p className="mt-4 text-sm font-semibold text-marker">{error}</p>}
-      {loading ? (
-        <p className="mt-4 text-sm text-pencil">Loading…</p>
-      ) : (
-        <table className="mt-4 w-full border-t border-pencil-light/30 text-left text-sm">
-          <thead>
-            <tr className="font-mono text-xs tracking-wider text-pencil uppercase">
-              <th className="py-2 font-medium">Name</th>
-              <th className="py-2 font-medium">Email</th>
-              <th className="py-2 font-medium">Role</th>
-              <th className="py-2 font-medium" />
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-pencil-light/20">
-            {users.map((u, i) => (
-              <tr key={u.id} className={i % 2 === 1 ? "bg-chalk-dark/60" : ""}>
-                <td className="py-2 pr-4 text-slate">{u.full_name}</td>
-                <td className="py-2 pr-4 text-pencil">{u.email}</td>
-                <td className="py-2 pr-4 text-pencil">{ROLE_LABEL[u.role] ?? u.role}</td>
-                <td className="py-2 text-right">
-                  <button type="button" onClick={() => handleRemove(u.id)} className="text-xs text-pencil hover:text-marker">
-                    Remove
-                  </button>
-                </td>
+      {error && <p className="mt-4 rounded-lg bg-danger-soft px-3 py-2 text-sm font-medium text-danger">{error}</p>}
+
+      <Card className="mt-4 overflow-hidden">
+        {loading ? (
+          <p className="p-6 text-sm text-subtle">Loading…</p>
+        ) : (
+          <table className="w-full text-left text-sm">
+            <thead>
+              <tr className="border-b border-border bg-canvas text-xs font-medium tracking-wide text-subtle uppercase">
+                <th className="px-5 py-3 font-medium">Name</th>
+                <th className="px-5 py-3 font-medium">Email</th>
+                <th className="px-5 py-3 font-medium">Role</th>
+                <th className="px-5 py-3 font-medium" />
               </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+            </thead>
+            <tbody className="divide-y divide-border">
+              {users.map((u) => (
+                <tr key={u.id} className="transition hover:bg-canvas">
+                  <td className="px-5 py-3 text-ink">{u.full_name}</td>
+                  <td className="px-5 py-3 text-subtle">{u.email}</td>
+                  <td className="px-5 py-3">
+                    <Badge tone="neutral">{ROLE_LABEL[u.role] ?? u.role}</Badge>
+                  </td>
+                  <td className="px-5 py-3 text-right">
+                    <button
+                      type="button"
+                      onClick={() => handleRemove(u.id)}
+                      className="text-sm font-medium text-subtle hover:text-danger"
+                    >
+                      Remove
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </Card>
     </div>
   )
 }

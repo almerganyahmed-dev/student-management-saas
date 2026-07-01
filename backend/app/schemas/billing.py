@@ -18,7 +18,7 @@ class SubscriptionOut(BaseModel):
 
 
 class CheckoutSessionRequest(BaseModel):
-    plan: Literal["basic", "premium"]
+    plan: Literal["basic", "premium", "enterprise"]
 
 
 class CheckoutSessionOut(BaseModel):
