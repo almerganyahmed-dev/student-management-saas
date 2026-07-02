@@ -5,9 +5,10 @@ import Dashboard from './pages/Dashboard'
 import Students from './pages/Students'
 import Profile from './pages/Profile'
 import Admin from './pages/Admin'
+import Billing from './pages/Billing'
 import ProtectedRoute from './components/ProtectedRoute'
 import { AuthProvider, useAuth } from './lib/AuthContext'
-import { IconGrid, IconUsers, IconUser, IconShield, IconSignOut } from './components/icons'
+import { IconGrid, IconUsers, IconUser, IconShield, IconCard, IconSignOut } from './components/icons'
 
 function Layout({ children }) {
   const { user, tenant, logout } = useAuth()
@@ -16,7 +17,12 @@ function Layout({ children }) {
     { to: '/dashboard', label: 'Dashboard', icon: IconGrid },
     { to: '/students', label: 'Students', icon: IconUsers },
     { to: '/profile', label: 'Profile', icon: IconUser },
-    ...(user?.role === 'admin' ? [{ to: '/admin', label: 'Admin', icon: IconShield }] : []),
+    ...(user?.role === 'admin'
+      ? [
+          { to: '/admin', label: 'Admin', icon: IconShield },
+          { to: '/billing', label: 'Billing', icon: IconCard },
+        ]
+      : []),
   ]
 
   function handleSignOut() {
@@ -113,6 +119,16 @@ function App() {
               <ProtectedRoute roles={['admin']}>
                 <Layout>
                   <Admin />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/billing"
+            element={
+              <ProtectedRoute roles={['admin']}>
+                <Layout>
+                  <Billing />
                 </Layout>
               </ProtectedRoute>
             }
