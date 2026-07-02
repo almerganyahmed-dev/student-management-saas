@@ -64,7 +64,7 @@ export default function Admin() {
   return (
     <div>
       <h1 className="font-display text-2xl font-semibold text-ink">Admin</h1>
-      <p className="mt-1 text-sm text-subtle">Tenant record, billing, and staff/student accounts.</p>
+      <p className="mt-1 text-sm text-subtle">Tenant record and staff/student accounts.</p>
 
       <Card className="mt-6 max-w-md p-6">
         <div className="flex items-start justify-between">

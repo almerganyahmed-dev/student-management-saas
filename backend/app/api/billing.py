@@ -81,8 +81,8 @@ def create_checkout_session(
         mode="subscription",
         customer=subscription.stripe_customer_id,
         line_items=[{"price": price_id, "quantity": 1}],
-        success_url=f"{settings.frontend_url}/admin?checkout=success",
-        cancel_url=f"{settings.frontend_url}/admin?checkout=cancel",
+        success_url=f"{settings.frontend_url}/billing?checkout=success",
+        cancel_url=f"{settings.frontend_url}/billing?checkout=cancel",
         metadata={"tenant_id": str(admin.tenant_id), "plan": body.plan},
         subscription_data={"metadata": {"tenant_id": str(admin.tenant_id), "plan": body.plan}},
     )
@@ -102,7 +102,7 @@ def create_portal_session(
     portal_session = call_stripe(
         stripe.billing_portal.Session.create,
         customer=subscription.stripe_customer_id,
-        return_url=f"{settings.frontend_url}/admin",
+        return_url=f"{settings.frontend_url}/billing",
     )
     return PortalSessionOut(url=portal_session.url)
 
