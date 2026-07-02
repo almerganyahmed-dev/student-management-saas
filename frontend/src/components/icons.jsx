@@ -72,3 +72,12 @@ export function IconSignOut(props) {
     </Icon>
   )
 }
+
+export function IconCard(props) {
+  return (
+    <Icon {...props}>
+      <rect x="3" y="5" width="18" height="14" rx="2" />
+      <path d="M3 10h18" />
+    </Icon>
+  )
+}
