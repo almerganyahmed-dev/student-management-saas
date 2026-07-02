@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react"
-import { useSearchParams } from "react-router-dom"
 import Card, { Badge } from "../components/Card"
 import { useAuth } from "../lib/AuthContext"
 import { api, ApiError } from "../lib/api"
@@ -8,56 +7,12 @@ const inputClass =
   "mt-1.5 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-ink outline-none transition focus:border-brand focus:ring-2 focus:ring-brand-soft"
 const labelClass = "text-sm font-medium text-ink"
 const ROLE_LABEL = { admin: "Administrator", teacher: "Teacher", student: "Student" }
-const PLAN_LABEL = { free: "Free", basic: "Basic", premium: "Premium", enterprise: "Enterprise" }
-const STATUS_TONE = { active: "brand", past_due: "warning", canceled: "danger", incomplete: "neutral" }
-const UPGRADE_PLANS = ["basic", "premium", "enterprise"]
 
 export default function Admin() {
   const { tenant } = useAuth()
-  const [searchParams] = useSearchParams()
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-
-  const [subscription, setSubscription] = useState(null)
-  const [billingError, setBillingError] = useState(null)
-  const [billingBusy, setBillingBusy] = useState(null)
-
-  async function loadSubscription() {
-    try {
-      setSubscription(await api.get("/billing/subscription"))
-    } catch (err) {
-      setBillingError(err instanceof ApiError ? err.detail : "Could not load billing status.")
-    }
-  }
-
-  useEffect(() => {
-    loadSubscription()
-  }, [])
-
-  async function handleUpgrade(plan) {
-    setBillingError(null)
-    setBillingBusy(plan)
-    try {
-      const { url } = await api.post("/billing/checkout-session", { plan })
-      window.location.href = url
-    } catch (err) {
-      setBillingError(err instanceof ApiError ? err.detail : "Could not start checkout.")
-      setBillingBusy(null)
-    }
-  }
-
-  async function handleManageBilling() {
-    setBillingError(null)
-    setBillingBusy("portal")
-    try {
-      const { url } = await api.post("/billing/portal-session")
-      window.location.href = url
-    } catch (err) {
-      setBillingError(err instanceof ApiError ? err.detail : "Could not open billing portal.")
-      setBillingBusy(null)
-    }
-  }
 
   const [fullName, setFullName] = useState("")
   const [email, setEmail] = useState("")
@@ -126,55 +81,6 @@ export default function Admin() {
             <dd className="font-mono text-ink">{tenant?.slug ?? "—"}</dd>
           </div>
         </dl>
-      </Card>
-
-      {searchParams.get("checkout") === "success" && (
-        <p className="mt-4 rounded-lg bg-brand-soft px-3 py-2 text-sm font-medium text-brand-dark">
-          Checkout complete — your plan will update shortly.
-        </p>
-      )}
-      {searchParams.get("checkout") === "cancel" && (
-        <p className="mt-4 rounded-lg bg-canvas px-3 py-2 text-sm font-medium text-subtle">Checkout canceled.</p>
-      )}
-
-      <h2 className="mt-8 font-display text-lg font-semibold text-ink">Billing</h2>
-      <Card className="mt-4 max-w-md p-6">
-        {subscription ? (
-          <>
-            <div className="flex items-start justify-between">
-              <p className="font-display text-lg font-semibold text-ink">{PLAN_LABEL[subscription.plan]} plan</p>
-              <Badge tone={STATUS_TONE[subscription.status] ?? "neutral"}>{subscription.status}</Badge>
-            </div>
-            <div className="mt-4 flex flex-wrap gap-2.5">
-              {UPGRADE_PLANS.filter((plan) => plan !== subscription.plan).map((plan) => (
-                <button
-                  key={plan}
-                  type="button"
-                  onClick={() => handleUpgrade(plan)}
-                  disabled={billingBusy !== null}
-                  className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-ink transition hover:border-brand hover:text-brand disabled:opacity-60"
-                >
-                  {billingBusy === plan ? "Redirecting…" : `Choose ${PLAN_LABEL[plan]}`}
-                </button>
-              ))}
-              {subscription.plan !== "free" && (
-                <button
-                  type="button"
-                  onClick={handleManageBilling}
-                  disabled={billingBusy !== null}
-                  className="rounded-lg px-4 py-2 text-sm font-medium text-subtle underline decoration-border transition hover:text-ink disabled:opacity-60"
-                >
-                  {billingBusy === "portal" ? "Redirecting…" : "Manage billing"}
-                </button>
-              )}
-            </div>
-          </>
-        ) : (
-          <p className="text-sm text-subtle">Loading…</p>
-        )}
-        {billingError && (
-          <p className="mt-3 rounded-lg bg-danger-soft px-3 py-2 text-sm font-medium text-danger">{billingError}</p>
-        )}
       </Card>
 
       <h2 className="mt-8 font-display text-lg font-semibold text-ink">Staff &amp; students</h2>
