@@ -8,6 +8,9 @@ export default defineConfig({
   server: {
     host: true,
     port: 5173,
+    // ponytail: quick-tunnel host changes on every restart, so allow all — tighten to
+    // an explicit list if this moves beyond a throwaway cloudflared tunnel.
+    allowedHosts: true,
   },
   test: {
     environment: 'jsdom',
